@@ -32,15 +32,13 @@ export default function SearchPage(): JSX.Element {
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    if (query.length > 4) {
+    if (query.length >= 4) {
       setLoading(true);
 
-      // Очистка предыдущего таймера
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
       }
 
-      // Установка нового таймера
       timeoutRef.current = setTimeout(() => {
         fetch(`https://api.chucknorris.io/jokes/search?query=${query}`)
           .then((response) => response.json())
@@ -53,7 +51,7 @@ export default function SearchPage(): JSX.Element {
           .finally(() => {
             setLoading(false);
           });
-      }, 500); // Задержка 500 мс
+      }, 500);
     } else {
       setJokes([]);
     }
