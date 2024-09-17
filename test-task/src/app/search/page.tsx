@@ -78,7 +78,7 @@ export default function SearchPage(): JSX.Element {
           {jokes.map((joke) => (
             <Card key={joke.url} className={styles.card}>
               <CardHeader>
-                <CardTitle className={styles.cardTitle}>Я картОЧКА</CardTitle>
+                <CardTitle className={styles.cardTitle}>Yamaguchi</CardTitle>
                 <CardDescription className={styles.cardDescription}>
                   Шутка от Чака Нориса
                 </CardDescription>
