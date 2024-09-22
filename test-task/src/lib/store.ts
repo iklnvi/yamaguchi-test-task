@@ -4,7 +4,7 @@ import jokesReducer from './features/jokes/JokesSlice';
 export const makeStore = () => {
   return configureStore({
     reducer: {
-      jokes: jokesReducer, // Добавляем редюсер шуток
+      jokes: jokesReducer, 
     },
   });
 };

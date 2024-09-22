@@ -1,7 +1,6 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { Jokes, ApiResponse } from '@/types/apiResponse';
 
-// Определяем начальное состояние
 interface JokesState {
   jokes: Jokes[];
   loading: boolean;
@@ -14,13 +13,14 @@ const initialState: JokesState = {
   error: null,
 };
 
-// Создаем асинхронный thunk для получения данных
 export const fetchJokes = createAsyncThunk(
   'jokes/fetchJokes',
   async (query: string) => {
-    const response = await fetch(`https://api.chucknorris.io/jokes/search?query=${query}`);
+    const response = await fetch(
+      `https://api.chucknorris.io/jokes/search?query=${query}`
+    );
     const data: ApiResponse = await response.json();
-    return data.result; // Возвращаем результат
+    return data.result;
   }
 );
 
@@ -28,19 +28,20 @@ export const fetchJokes = createAsyncThunk(
 const jokesSlice = createSlice({
   name: 'jokes',
   initialState,
-  reducers: {
-    // Можем добавить дополнительные синхронные действия, если нужно
-  },
+  reducers: {},
   extraReducers: (builder) => {
     builder
       .addCase(fetchJokes.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(fetchJokes.fulfilled, (state, action: PayloadAction<Jokes[]>) => {
-        state.jokes = action.payload;
-        state.loading = false;
-      })
+      .addCase(
+        fetchJokes.fulfilled,
+        (state, action: PayloadAction<Jokes[]>) => {
+          state.jokes = action.payload;
+          state.loading = false;
+        }
+      )
       .addCase(fetchJokes.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message || 'Ошибка при загрузке данных';
@@ -48,5 +49,4 @@ const jokesSlice = createSlice({
   },
 });
 
-// Экспортируем редюсер
 export default jokesSlice.reducer;

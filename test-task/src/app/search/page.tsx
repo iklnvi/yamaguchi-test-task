@@ -3,9 +3,15 @@ import { useEffect, useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { useQuery } from '@tanstack/react-query';
 import styles from './searchPage.module.css';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 
-// Функция для получения шуток из API
 const fetchJokes = async (query: string) => {
   const response = await fetch(
     `https://api.chucknorris.io/jokes/search?query=${query}`
@@ -22,8 +28,8 @@ export default function SearchPage(): JSX.Element {
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ['jokes', query],
     queryFn: () => fetchJokes(query),
-    enabled: query.length >= 4, // Запускать запрос только если длина строки >= 4
-    refetchOnWindowFocus: false, // Отключаем повторное получение данных при фокусе окна
+    enabled: query.length >= 4,
+    refetchOnWindowFocus: false,
   });
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
