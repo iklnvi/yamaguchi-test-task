@@ -1,61 +1,30 @@
 'use client';
-
-import styles from './searchPage.module.css';
+import { useEffect, useState } from 'react';
 import { Input } from '@/components/ui/input';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import { useEffect, useState, useRef } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import styles from './searchPage.module.css';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 
-type Joke = {
-  categories: string[];
-  created_at: string;
-  icon_url: string;
-  url: string;
-  value: string;
-};
-
-type ApiResponse = {
-  total: number;
-  result: Joke[];
+// Функция для получения шуток из API
+const fetchJokes = async (query: string) => {
+  const response = await fetch(
+    `https://api.chucknorris.io/jokes/search?query=${query}`
+  );
+  if (!response.ok) {
+    throw new Error('Ошибка при загрузке шуток');
+  }
+  return response.json();
 };
 
 export default function SearchPage(): JSX.Element {
-  const [jokes, setJokes] = useState<Joke[]>([]);
   const [query, setQuery] = useState<string>('');
-  const [loading, setLoading] = useState<boolean>(false);
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  useEffect(() => {
-    if (query.length >= 4) {
-      setLoading(true);
-
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
-
-      timeoutRef.current = setTimeout(() => {
-        fetch(`https://api.chucknorris.io/jokes/search?query=${query}`)
-          .then((response) => response.json())
-          .then((data: ApiResponse) => {
-            setJokes(data.result);
-          })
-          .catch((err) => {
-            console.error('Ошибка при получении шуток:', err);
-          })
-          .finally(() => {
-            setLoading(false);
-          });
-      }, 500);
-    } else {
-      setJokes([]);
-    }
-  }, [query]);
+  const { data, isLoading, isError, error } = useQuery({
+    queryKey: ['jokes', query],
+    queryFn: () => fetchJokes(query),
+    enabled: query.length >= 4, // Запускать запрос только если длина строки >= 4
+    refetchOnWindowFocus: false, // Отключаем повторное получение данных при фокусе окна
+  });
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setQuery(event.target.value);
@@ -70,10 +39,12 @@ export default function SearchPage(): JSX.Element {
         value={query}
         onChange={handleInputChange}
       />
-      {loading && <p>Loading...</p>}
-      {jokes.length > 0 ? (
+      {isLoading && <p>Loading...</p>}
+      {isError && <p>Error: {error?.message}</p>}
+
+      {data?.result?.length > 0 ? (
         <div className={styles.cardContainer}>
-          {jokes.map((joke) => (
+          {data.result.map((joke) => (
             <Card key={joke.url} className={styles.card}>
               <CardHeader>
                 <CardTitle className={styles.cardTitle}>Yamaguchi</CardTitle>
@@ -85,14 +56,18 @@ export default function SearchPage(): JSX.Element {
                 <p>Шутка: {joke.value}</p>
               </CardContent>
               <CardFooter className={styles.cardFooterContent}>
-                <CardContent>Категория: {joke.categories[0] || 'Нет категории'}</CardContent>
-                <CardContent>Дата: {new Date(joke.created_at).toLocaleDateString()}</CardContent>
+                <CardContent>
+                  Категория: {joke.categories[0] || 'Нет категории'}
+                </CardContent>
+                <CardContent>
+                  Дата: {new Date(joke.created_at).toLocaleDateString()}
+                </CardContent>
               </CardFooter>
             </Card>
           ))}
         </div>
       ) : (
-        !loading && <h1>No jokes</h1>
+        !isLoading && <h1 className={styles.totalCount}>No jokes</h1>
       )}
     </>
   );
